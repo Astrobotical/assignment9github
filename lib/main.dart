@@ -1,6 +1,5 @@
-import 'dart:async';
-import 'dart:convert';
 
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as httpobject;
 import 'package:githubapiassignment9/Requestdata.dart';
@@ -32,10 +31,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
  // String? URL = 'https://api.github.com/users/';
-  bool hasentered = false;
   final TextEditingController userinput = TextEditingController();
-   bool isloading = false;
-   //'https://api.github.com/users/$userinput.text'
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,65 +39,70 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           Container(
               margin: EdgeInsets.only(top:60),
-            child: const Center(
-              child: Text("Github Searcher", style: TextStyle(fontSize:25,fontWeight: FontWeight.bold,color: Colors.lightBlue))
-            )
+              child: const Center(
+                  child: Text("Github Searcher",
+                      style: TextStyle(fontSize:25,fontWeight: FontWeight.bold,color: Colors.lightBlue))
+              )
           ),
           Container(
             margin: EdgeInsets.only(top:30),
             width: double.infinity,
-              child: Flexible(
                   child: Row(
                     children: [
                       Container(margin: EdgeInsets.only(left: 15, right : 15), width: 250,child: TextField(controller : userinput, decoration : InputDecoration(hintText: "Please enter a Username", border: OutlineInputBorder()),)),
                       ElevatedButton(
                           style: ElevatedButton.styleFrom(primary: Colors.blue),
                           onPressed: () =>{
-                            setState(() {
-                              if(userinput.text == "")
-                              {
-                                print("Enter something");
-                                hasentered = false;
-                              }else{
-                                hasentered = true;
-                              }
-                            })
                           },
                           child: Text('Search', style: TextStyle(color: Colors.black)))
                     ],
                   )
-              )
           ),
           Container(
-            margin: EdgeInsets.only(top: 30),
+            margin: EdgeInsets.only(top: 20,bottom: 20),
             child:
-             Flexible(
-                child:
-                    hasentered ? FutureBuilder<List<dynamic>>(
-                        future: Getuserdata(),
-                        builder: (context, AsyncSnapshot snapped) {
-                          if(snapped.connectionState == ConnectionState.waiting){
-                            return const CircularProgressIndicator();
-                          }else if(snapped.hasError)
-                            {
-                              return Text('Error found - ${snapped.error}');
-                            }else {
-                            return ListView.builder(
-                              itemCount: snapped.data!.length,
-                              itemBuilder: (context, index) {
-                                ListTile(
-                                  leading: Image.network(snapped.data![index]['avatar_url']),
-                                    title: Text(snapped.data![index]['Name']),
-                                  subtitle: Text(snapped.data![index]['location']),
-                                );
-                              },
-                            );
-                          }
-                    }) :  const Center(
-                        child: Text("Nothing was done yet")
-                    )
-
-              )
+                Column(
+                    children:[
+                      Flexible(
+                        flex : 1,
+                          child:
+                      SingleChildScrollView(
+                          scrollDirection : Axis.vertical,
+                          child: FutureBuilder<List<dynamic>>(
+                              future: Getuserdata(),
+                              builder: (context, AsyncSnapshot snapped) {
+                                if (snapped.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                } else if (snapped.hasError) {
+                                  return Text('Error found - ${snapped.error}');
+                                }
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: snapped.data!.length,
+                                    itemBuilder: (context, index) {
+                                      print(snapped.data![0]["login"]);
+                                      return Container(
+                                        margin: EdgeInsets.all(15),
+                                            child: Row(
+                                                children :[
+                                                  CircleAvatar(
+                                                    child: Image.network(snapped.data![index]["avatar_url"]) ,),
+                                                Container(
+                                                  margin: EdgeInsets.only(left:15,top:15),
+                                                  child: Text("${snapped.data![index]["login"]}")
+                                                      )
+                                          ]
+                                      )
+                                      );
+                                    },
+                                  );
+                                }
+                              )
+                      )
+                      )
+              ]
+          )
           )
         ],
       )
